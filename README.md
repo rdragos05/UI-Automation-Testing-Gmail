@@ -9,5 +9,6 @@ This is a tutorial on how to: <br />
 -Logout <br />
 -Login to the second address <br />
 -Check if the mail is in the inbox folder <br />
+-Check if the subject/ sender/ body corresponds with the initial values
 
 Enjoy! <br />
