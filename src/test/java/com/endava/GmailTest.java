@@ -1,15 +1,23 @@
 package com.endava;
 
+import com.sun.glass.ui.*;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.SystemClock;
 
+import java.awt.*;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by draicu on 7/29/2016.
@@ -30,9 +38,15 @@ public class GmailTest {
 
     @Test
     public void testGmail(){
+
+        String mailUsername="a@gmail.com";
+        String mailPassword="asdf";
+        String mailSubject="subject123";
+        String mailBody="body123";
+
         // replace 'username' with actual gmail address to work
         WebElement emailField = webDriver.findElement(By.xpath("//input[@id=\"Email\"]"));
-        emailField.sendKeys("username");
+        emailField.sendKeys(mailUsername);
 
         // press the "Next" button
         WebElement nextButton = webDriver.findElement(By.xpath("//input[@id='next']"));
@@ -40,7 +54,7 @@ public class GmailTest {
 
         // replace 'password' with actual password for the gmail account previously entered
         WebElement passwordField = webDriver.findElement(By.xpath("//input[@id='Passwd']"));
-        passwordField.sendKeys("password");
+        passwordField.sendKeys(mailPassword);
 
         //press the "Sign in" button
         WebElement signInButton = webDriver.findElement(By.xpath("//input[@id='signIn']"));
@@ -57,11 +71,11 @@ public class GmailTest {
 
         //insert the mail subject
         WebElement subjectField = webDriver.findElement(By.xpath("//input[@name='subjectbox']"));
-        subjectField.sendKeys("Test");
+        subjectField.sendKeys(mailSubject);
 
         //insert the mail body
         WebElement bodyField = webDriver.findElement(By.xpath("//div[@aria-label='Message Body']"));
-        bodyField.sendKeys("Test");
+        bodyField.sendKeys(mailBody);
 
         //press the "Send" button
         WebElement sendButton = webDriver.findElement(By.xpath("//div[contains(@aria-label, 'Send')]"));
@@ -99,21 +113,39 @@ public class GmailTest {
         signInButton = webDriver.findElement(By.xpath("//input[@id='signIn']"));
         signInButton.click();
 
-        //Find the mail sent before by sender's name
-        //If the mail is send by someone else, change 'Raicu Dragos' to actual name
-        WebElement senderNameField = webDriver.findElement(By.xpath("//span[@name='Raicu Dragos']"));
+        //Find and access the mail sent before by sender's name
+        //If you changed mailUsername varible, please change the attribute below "@email" to the same string
+        WebElement senderNameField = webDriver.findElement(By.xpath("(//span[@email='rdragos05@gmail.com'])[position()<2]"));
         senderNameField.click();
 
-        //extra step: Access the reply link related to the conversation to enable the Message Body Field
-        WebElement replyField = webDriver.findElement(By.xpath("//span[text()='Reply'][@role='link']"));
-        replyField.click();
+        //now the last mail/ conversation with mailUsername is opened and testing can be done
 
-        //save the time the mail was received to a string var just to check that it was "0 minutes ago"
-        String elemval=webDriver.findElement(By.xpath("//span[contains(.,'minutes ago')]")).getText();
 
-        //extra step: Verification
-        bodyField = webDriver.findElement(By.xpath("//div[@aria-label='Message Body']"));
-        bodyField.sendKeys("^ the email previously sent at ",elemval);
+        //Tests:
+
+        //test mail subject
+        //change "subject123" to the string you entered for mailSubject variable
+        WebElement testMessageSubject = webDriver.findElement(By.xpath("(//h2[contains(@tabindex,\"-1\")])[last()]"));
+        String messageSubject = testMessageSubject.getText();
+        assertTrue(messageSubject.contains("subject123"));
+
+
+        //test mail body
+        //change "body123" to the string you entered for mailBody variable
+        WebElement testMessageBody = webDriver.findElement(By.xpath("((((//.[@role='listitem'])[last()]/div/div/div/div/div[@style=\"display:\"]/div)[last()-1]/div)[last()-2]/div/div)[last()-1]"));
+        String messageBody = testMessageBody.getText();
+        assertEquals(mailBody,"body123");
+
+
+        //test mail sender
+        //change "rdragos05@gmail.com" to the string you entered for mailUsername variable
+        WebElement testMessageSender = webDriver.findElement(By.xpath("(//h3)[last()]"));
+        String messageSender = testMessageSender.getText();
+        assertTrue(messageSender.contains("rdragos05@gmail.com"));
+
+        //test time the message arrived
+        String elemval=webDriver.findElement(By.xpath("(//span[contains(.,'minutes ago')])[last()]")).getText();
+        assertTrue(elemval.contains("0 minutes ago"));
 
     }
 
